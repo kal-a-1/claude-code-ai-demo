@@ -39,29 +39,36 @@ Where `<short-description>` is a 2–4 word kebab-case summary of the issue titl
 
 Confirm the branch is active before spawning any agents.
 
-## Phase 3 — Shared Types
+## Phase 3 — Shared Types & API Contracts
 
-Before spawning any agents, review the issue analysis from Phase 1 and identify any types or interfaces that will be shared between frontend and backend (e.g. request/response shapes, enums, DTO contracts).
+Spawn the **architect agent** (subagent_type: architect) with the following prompt. Replace every `[…]` placeholder with the actual values from Phase 1 before sending — do not forward placeholder text.
 
-For each shared type:
+```
+Design the API contract and shared types for this feature.
 
-1. Add it to `libs/track-shared/src/` (following existing conventions in that lib)
-2. Export it from the lib's barrel file (`index.ts`)
-3. Rebuild the shared library:
-   ```
-   npx nx build track-shared
-   ```
-4. Commit the shared types on the current feature branch before spawning agents
+Issue number: [replace with issue number]
+Issue title: [replace with actual title from Phase 1]
+Issue description: [replace with actual full body from Phase 1]
 
-Brief the agents (in Phase 4) that these types already exist in `track-shared` and should be imported rather than redefined.
+Feature analysis:
+- Frontend work needed: [replace with your Phase 1 frontend analysis]
+- Backend work needed: [replace with your Phase 1 backend analysis]
 
-If the issue does not introduce any cross-boundary types, skip this phase and proceed directly to Phase 4.
+Acceptance criteria:
+[replace with the acceptance criteria from the issue]
+
+If no new API endpoints are required, say so and do nothing.
+```
+
+Wait for the architect agent to return before proceeding.
+
+Save the architect's full output — you will paste it verbatim into both agent prompts in Phase 4.
 
 ## Phase 4 — Parallel Implementation
 
 Spawn **both agents at the same time in a single message** (this triggers parallel execution).
 
-**Before sending the prompts below, replace every `[…]` placeholder with the actual values you retrieved in Phase 1.** Do not forward placeholder text — interpolate the real issue title, body, your analysis, and the acceptance criteria inline.
+**Before sending the prompts below, replace every `[…]` placeholder with the actual values you retrieved in Phase 1 and the architect output from Phase 3.** Do not forward placeholder text — interpolate the real issue title, body, your analysis, acceptance criteria, and the full API contract inline.
 
 **Frontend task** (subagent_type: frontend-dev):
 
@@ -76,6 +83,9 @@ Frontend work needed:
 
 Acceptance criteria:
 [replace with the acceptance criteria from the issue]
+
+API contract and shared types (defined by the architect — import from 'track-shared', do not redefine):
+[paste the full architect output from Phase 3 here]
 
 When done, commit your work and return:
 1. Your worktree branch name
@@ -97,6 +107,9 @@ Backend work needed:
 
 Acceptance criteria:
 [replace with the acceptance criteria from the issue]
+
+API contract and shared types (defined by the architect — import from 'track-shared', do not redefine):
+[paste the full architect output from Phase 3 here]
 
 When done, commit your work and return:
 1. Your worktree branch name
