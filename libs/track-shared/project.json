@@ -1,0 +1,19 @@
+{
+  "name": "track-shared",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/track-shared/src",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/track-shared",
+        "main": "libs/track-shared/src/index.ts",
+        "tsConfig": "libs/track-shared/tsconfig.lib.json",
+        "assets": ["libs/track-shared/*.md"]
+      }
+    }
+  }
+}
