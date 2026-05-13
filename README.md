@@ -4,9 +4,10 @@ ProTrack is a demo project tracker app built using **Claude Code** to show how A
 
 ## About
 
-The goal of this project is not the app itself — it's to demonstrate what Claude Code can do. 
+The goal of this project is not the app itself — it's to demonstrate what Claude Code can do.
 
 ## What's Being Demonstrated
+
 - Vibe Coding
 - Agent Workflows
 - Custom Commands
@@ -15,6 +16,7 @@ The goal of this project is not the app itself — it's to demonstrate what Clau
 - LLM Integration
 
 ## Built With
+
 - **Frontend** — Vite, React, React Query, Zustand
 - **Backend** — NestJS, Prisma, SQLite
 - **Monorepo** — NX Workspace
