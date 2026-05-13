@@ -4,7 +4,8 @@
       "Bash(npx *)",
       "Bash(npm *)",
       "Bash(gh *)",
-      "WebFetch(domain:github.com)"
+      "WebFetch(domain:github.com)",
+      "mcp__context7"
     ]
   },
   "enabledMcpjsonServers": ["context7"],
