@@ -146,6 +146,12 @@ State follows the **DUCK pattern** under `store/<entity>/` — see an existing e
 - Backend: throw NestJS HTTP exceptions (`NotFoundException`, `BadRequestException`, etc.)
 - Frontend: surface API errors via React Query and display user-friendly messages (toast/alert)
 
+### Comments
+
+- Do not write comments by default
+- Comments are only allowed for public APIs and complex logic that would take a human more than 2 minutes to understand
+- Never describe what the code does — explain why it does it, if that why is non-obvious
+
 ### Linting
 
 - Never disable ESLint rules with `// eslint-disable` without a comment explaining why it's unavoidable
