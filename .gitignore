@@ -1,0 +1,46 @@
+# NX
+.nx/cache
+.nx/polygraph
+.nx/workspace-data
+
+# Dependencies
+node_modules
+
+# Build outputs
+dist
+out-tsc
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Coverage
+coverage
+
+# Test artifacts
+test-results
+playwright-report
+blob-report
+
+# Editor
+.vscode/settings.json
+.vscode/launch.json
+.idea
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Claude Code
+.claude/worktrees
+.claude/settings.local.json
+
+# Vite
+vite.config.*.timestamp*
+vitest.config.*.timestamp*
+
+# Prisma
+*.db
+*.db-journal
+apps/track-api/prisma/migrations/
