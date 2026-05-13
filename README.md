@@ -24,6 +24,33 @@ The goal of this project is not the app itself — it's to demonstrate what Clau
 
 ---
 
+## Getting Started
+
+### Install
+
+```bash
+nvm use
+npm install
+```
+
+### Database setup (first time)
+
+```bash
+cd apps/track-api
+npx prisma migrate dev --name init
+cd ../..
+```
+
+### Run locally
+
+```bash
+npm run dev
+```
+
+Access the app through <http://localhost:4200>
+
+---
+
 > This project was built almost entirely by Claude Code. Human input was mostly prompts.
 
 ---
