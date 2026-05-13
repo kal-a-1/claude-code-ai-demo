@@ -33,6 +33,12 @@ nvm use
 npm install
 ```
 
+### Environment setup
+
+```bash
+cp apps/track-api/.env.example apps/track-api/.env
+```
+
 ### Database setup (first time)
 
 ```bash
