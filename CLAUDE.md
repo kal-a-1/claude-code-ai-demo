@@ -26,8 +26,9 @@ ProTrack: Full-stack project tracking app using NX Workspace monorepo, TypeScrip
 ```bash
 nvm use && npm install
 
-# Copy env file (first time)
+# Copy env files (first time)
 cp apps/track-api/.env.example apps/track-api/.env
+cp apps/track-web/.env.example apps/track-web/.env.local
 
 # Run database migrations (first time)
 cd apps/track-api && npx prisma migrate dev --name init && cd ../..
@@ -44,9 +45,9 @@ npm run dev:api    # Backend only  (wraps nx serve track-api)
 
 `apps/track-api/.env` — required, not committed:
 
-| Variable       | Description              | Example              |
-| -------------- | ------------------------ | -------------------- |
-| `DATABASE_URL` | SQLite DB file path      | `file:./dev.db`      |
+| Variable       | Description         | Example         |
+| -------------- | ------------------- | --------------- |
+| `DATABASE_URL` | SQLite DB file path | `file:./dev.db` |
 
 ## Key Commands
 

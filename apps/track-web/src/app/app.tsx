@@ -1,6 +1,12 @@
 import { Button } from '@heroui/react';
 import { Route, Routes, Link } from 'react-router-dom';
 
+if (import.meta.env.VITE_MOCK_ENABLED === 'true') {
+  import('../../_mocks').catch((err) =>
+    console.error('MSW failed to start', err),
+  );
+}
+
 export function App() {
   return (
     <div>

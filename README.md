@@ -37,6 +37,7 @@ npm install
 
 ```bash
 cp apps/track-api/.env.example apps/track-api/.env
+cp apps/track-web/.env.example apps/track-web/.env.local
 ```
 
 ### Database setup (first time)
