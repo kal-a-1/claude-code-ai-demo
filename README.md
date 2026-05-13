@@ -17,18 +17,7 @@ The goal of this project is not the app itself — it's to demonstrate what Clau
 
 ## Agent Workflow: `/implement-issue`
 
-```mermaid
-flowchart TD
-    A["/implement-issue #N"] --> B["Fetch GitHub Issue"]
-    B --> C["Create Feature Branch"]
-    C --> D["Architect Agent\nAPI contracts & shared types"]
-    D --> E["Frontend Agent"] & F["Backend Agent"]
-    E & F --> G["Merge + Lint/Test/Build + Open PR"]
-    G --> H["E2E Tester"] & I["A11y Tester"]
-    H & I --> J{E2E passed?}
-    J -- Yes --> K["Merge PR & Close Issue"]
-    J -- No --> L["Report failures to user"]
-```
+![Agent Workflow](docs/agent-workflow.png)
 
 ## Built With
 
