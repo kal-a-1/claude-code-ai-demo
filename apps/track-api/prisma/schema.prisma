@@ -14,7 +14,6 @@ model User {
   avatarInitials String?
   createdAt      DateTime @default(now())
 
-  ownedProjects   Project[]
   assignedTickets Ticket[]
 }
 
@@ -24,9 +23,6 @@ model Project {
   shortDescription String?
   longDescription  String?
   createdAt        DateTime @default(now())
-
-  owner   User   @relation(fields: [ownerId], references: [id])
-  ownerId String
 
   sprints Sprint[]
   tickets Ticket[]
