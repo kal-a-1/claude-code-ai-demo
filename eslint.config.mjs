@@ -1,9 +1,17 @@
 import nx from '@nx/eslint-plugin';
+import tseslint from 'typescript-eslint';
+import sonarjs from 'eslint-plugin-sonarjs';
+import importPlugin from 'eslint-plugin-import';
+import prettierPlugin from 'eslint-plugin-prettier';
+import prettierConfig from 'eslint-config-prettier';
 
 export default [
   ...nx.configs['flat/base'],
   ...nx.configs['flat/typescript'],
   ...nx.configs['flat/javascript'],
+  ...tseslint.configs.recommended,
+  sonarjs.configs.recommended,
+  prettierConfig,
   {
     ignores: [
       '**/dist',
@@ -14,6 +22,10 @@ export default [
   },
   {
     files: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx'],
+    plugins: {
+      import: importPlugin,
+      prettier: prettierPlugin,
+    },
     rules: {
       '@nx/enforce-module-boundaries': [
         'error',
@@ -28,6 +40,12 @@ export default [
           ],
         },
       ],
+      'import/no-duplicates': 'error',
+      'import/order': [
+        'warn',
+        { 'newlines-between': 'always', alphabetize: { order: 'asc' } },
+      ],
+      'prettier/prettier': 'error',
     },
   },
   {
@@ -41,7 +59,6 @@ export default [
       '**/*.cjs',
       '**/*.mjs',
     ],
-    // Override or add rules here
     rules: {},
   },
 ];
