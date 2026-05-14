@@ -178,11 +178,15 @@ Every agent (frontend-dev, backend-dev) runs in an isolated worktree, so their b
 
    If the working tree is not clean or any agent's commits are missing, stop and investigate before proceeding.
 
-7. Delete the local worktree branches (merging does not remove them):
+7. Remove the worktree directories then delete the local worktree branches. Use `git worktree list` to find each path by matching the branch name:
 
    ```
-   git branch -D <frontend-worktree-branch>   # if frontend agent was spawned
-   git branch -D <backend-worktree-branch>    # if backend agent was spawned
+   git worktree list                                              # identify paths
+   git worktree remove <frontend-worktree-path> --force          # if frontend agent was spawned
+   git worktree remove <backend-worktree-path> --force           # if backend agent was spawned
+   git worktree prune
+   git branch -D <frontend-worktree-branch>                      # if frontend agent was spawned
+   git branch -D <backend-worktree-branch>                       # if backend agent was spawned
    ```
 
 8. Verify the merged state:
@@ -204,7 +208,7 @@ Skip the screenshot steps (6a) if the issue has no frontend changes; go straight
 
 ### 6a — Take screenshots
 
-1. Start the dev servers in the background:
+1. Check if the dev servers are already running by attempting to connect to the frontend at `http://localhost:4200` using `mcp__playwright__browser_navigate`. If the page loads successfully, the servers are already up — skip the start step. If the connection fails (error or timeout), start the dev servers in the background:
 
    ```
    npm run dev
@@ -223,11 +227,19 @@ Skip the screenshot steps (6a) if the issue has no frontend changes; go straight
    git commit -m "chore: add screenshots for #$ARGUMENTS"
    ```
 
-5. Stop the dev servers.
+5. Close the browser using `mcp__playwright__browser_close`.
+
+6. Stop the dev servers.
 
 ### 6b — Open PR
 
-Push the branch and open a pull request against `main` using the GitHub MCP tool `mcp__github__create_pull_request` with:
+Push the branch to the remote so the PR head and any screenshot URLs resolve:
+
+```
+git push -u origin <feature-branch>
+```
+
+Then open a pull request against `main` using the GitHub MCP tool `mcp__github__create_pull_request` with:
 - `owner`: `kal-a-1`
 - `repo`: `claude-code-ai-demo`
 - `title`: `feat: <short description> (closes #$ARGUMENTS)`
@@ -258,6 +270,8 @@ Closes #$ARGUMENTS
 **Accessibility tests always run** for any issue that includes frontend changes.
 
 **E2E tests only run if explicitly requested** in the issue (e.g. the issue body mentions "e2e", "end-to-end", "playwright", or has a checklist item for automated tests). If E2E was not requested, skip the E2E tester agent entirely.
+
+Before spawning any agents in this phase, check if the dev servers are already running by attempting to connect to `http://localhost:4200` using `mcp__playwright__browser_navigate`. If the connection fails, start the servers with `npm run dev` and wait until port 4200 responds before spawning agents.
 
 Spawn the applicable agent(s) at the same time in a single message. Each agent runs in an isolated worktree — instruct them only to commit and return their branch name. The orchestrator owns all merges.
 
@@ -293,9 +307,14 @@ Original GitHub issue:
 Frontend dev summary:
 [paste full frontend-dev output from Phase 4]
 
-The frontend is running at http://localhost:4200 — use this as the base URL for all pages you scan.
+The frontend is ALREADY running at http://localhost:4200 — use this as the base URL for all pages you test.
 
-When your tests are written and committed, return:
+Write Playwright accessibility tests using @axe-core/playwright covering the pages and interactive components introduced by the feature. Place test files in apps/track-web-e2e/src/ named *.a11y.spec.ts. Run them with:
+  npx nx e2e track-web-e2e
+
+Commit the tests whether they pass or fail. If violations are found, file a GitHub issue summarising them.
+
+When done, return:
 1. Your worktree branch name
 2. A full structured accessibility report.
 

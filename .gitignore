@@ -44,3 +44,4 @@ vitest.config.*.timestamp*
 *.db
 *.db-journal
 apps/track-api/prisma/migrations/
+.playwright-mcp
