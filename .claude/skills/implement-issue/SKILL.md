@@ -176,7 +176,14 @@ Every agent (frontend-dev, backend-dev) runs in an isolated worktree, so their b
 
    If the working tree is not clean or any agent's commits are missing, stop and investigate before proceeding.
 
-7. Verify the merged state:
+7. Delete the local worktree branches (merging does not remove them):
+
+   ```
+   git branch -D <frontend-worktree-branch>   # if frontend agent was spawned
+   git branch -D <backend-worktree-branch>    # if backend agent was spawned
+   ```
+
+8. Verify the merged state:
 
    ```
    npx nx run-many --target=lint --all
@@ -189,7 +196,7 @@ Every agent (frontend-dev, backend-dev) runs in an isolated worktree, so their b
    - If the failure is non-trivial, ambiguous, or requires understanding intent (e.g. a broken test with unclear expected behaviour, a migration conflict), **stop and ask the user** — do not guess or force a fix
    - Never skip or suppress checks (`--skip-nx-cache` is fine; `--no-verify`, `eslint-disable`, `@ts-ignore` are not)
 
-8. Push the branch and open a pull request against `main` using the GitHub MCP tool `mcp__github__create_pull_request` with:
+9. Push the branch and open a pull request against `main` using the GitHub MCP tool `mcp__github__create_pull_request` with:
    - `owner`: `kal-a-1`
    - `repo`: `claude-code-ai-demo`
    - `title`: `feat: <short description> (closes #$ARGUMENTS)`
@@ -254,11 +261,13 @@ git merge <e2e-worktree-branch> --no-ff -m "test: e2e for #$ARGUMENTS"        # 
 git merge <ally-worktree-branch> --no-ff -m "test(a11y): a11y for #$ARGUMENTS" # if ally-tester was spawned
 ```
 
-Then remove the worktrees:
+Then remove the worktrees and delete the local worktree branches:
 
 ```
 git worktree remove <worktree-path> --force   # repeat for each spawned agent
 git worktree prune
+git branch -D <e2e-worktree-branch>           # if E2E was spawned
+git branch -D <ally-worktree-branch>          # if ally-tester was spawned
 ```
 
 Then push the feature branch to remote so the test commits are included in the PR:
@@ -267,34 +276,13 @@ Then push the feature branch to remote so the test commits are included in the P
 git push origin <feature-branch>
 ```
 
-## Phase 7 — Merge
+## Phase 7 — Report
 
-Review the reports from all agents that were spawned in Phase 6.
+Present a summary to the user covering:
 
-**If E2E was not requested** (no E2E tester was spawned): proceed directly to merge — the absence of E2E tests is not a blocker.
+- **What was built** — combined frontend + backend summary from Phase 4
+- **Tests** — whether E2E ran and the outcome (pass / fail / skipped); if failures, list them and suggest next steps
+- **Accessibility** — violations found and any GitHub issues filed, or "No accessibility violations found.", or "Accessibility tests skipped" if no frontend changes
+- **PR** — link to the pull request opened in Phase 5
 
-**If E2E was requested and the E2E report is clean** (no test failures): proceed to merge.
-
-**If E2E was requested and the E2E report has failures**:
-1. Do not merge
-2. Present to the user:
-   - What was built (combined frontend + backend summary)
-   - Which E2E tests failed and why
-   - Any accessibility violations and GitHub issues filed
-   - Recommended next steps to unblock the merge
-
-**To merge** (when unblocked):
-1. Merge the PR using the GitHub MCP tool `mcp__github__merge_pull_request` with:
-   - `owner`: `kal-a-1`
-   - `repo`: `claude-code-ai-demo`
-   - `pull_number`: the PR number opened in Phase 5
-   - `merge_method`: `squash`
-2. Close the original issue using `mcp__github__update_issue` with:
-   - `owner`: `kal-a-1`
-   - `repo`: `claude-code-ai-demo`
-   - `issue_number`: $ARGUMENTS
-   - `state`: `closed`
-3. Report to the user: what was built, whether E2E ran and passed, and that the PR was merged and the issue closed.
-   - If the accessibility report found violations: note the GitHub issue(s) filed and confirm they do not block the merge.
-   - If the accessibility report found no violations: note that explicitly ("No accessibility violations found.").
-   - If no frontend changes were made: note that accessibility tests were skipped.
+Do not merge the PR. Merging is the user's decision.
