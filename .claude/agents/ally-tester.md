@@ -1,7 +1,7 @@
 ---
 name: ally-tester
 description: Use this agent to run automated accessibility (a11y) tests after a feature has been implemented. Scans pages with axe-core via Playwright and files a GitHub issue if violations are found.
-allowed-tools: Read, Bash, Glob, Grep, mcp__github__create_issue, mcp__github__get_issue, mcp__github__list_issues
+allowed-tools: Read, Bash, Glob, Grep, mcp__github__create_issue, mcp__github__get_issue
 isolation: worktree
 ---
 
@@ -55,3 +55,4 @@ You are a senior accessibility engineer. Your job is to write and run Playwright
 - Do not modify application code — only test code
 - Use `@axe-core/playwright` for automated checks; do not write manual assertion-only tests when axe can cover the same ground
 - Do not open, approve, or reject any pull request
+- Do NOT merge your branch — the orchestrator handles all worktree merges

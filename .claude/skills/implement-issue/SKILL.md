@@ -4,6 +4,21 @@ description: Fetch a GitHub issue via the GitHub MCP server and implement the fe
 
 # Implement Issue: $ARGUMENTS
 
+## Phase 0 — Validate Input
+
+Before doing anything else, check that `$ARGUMENTS` is a positive integer (digits only, no spaces, greater than zero).
+
+If it is missing or invalid, stop immediately and tell the user:
+
+```
+Usage: /implement-issue <issue-number>
+Example: /implement-issue 42
+
+"$ARGUMENTS" is not a valid issue number. Please provide a positive integer.
+```
+
+Do not proceed to Phase 1 until this check passes.
+
 ## Phase 1 — Fetch and Analyse the Issue
 
 Fetch the issue using the GitHub MCP server tool `mcp__github__get_issue` with:
@@ -20,6 +35,7 @@ Read the issue carefully and identify:
 - What frontend changes are needed (UI, components, routing, state)
 - What backend changes are needed (endpoints, Prisma schema, business logic)
 - Acceptance criteria / definition of done
+- Whether E2E tests are explicitly requested (look for phrases like "e2e", "end-to-end", "playwright", "integration test", or a checklist item calling for automated tests)
 
 If the issue is purely frontend or purely backend, only spawn the relevant agent.
 
@@ -56,13 +72,15 @@ Feature analysis:
 
 Acceptance criteria:
 [replace with the acceptance criteria from the issue]
-
-If no new API endpoints are required, say so and do nothing.
 ```
 
 Wait for the architect agent to return before proceeding.
 
-Save the architect's full output — you will paste it verbatim into both agent prompts in Phase 4.
+Verify the contract file was committed by running:
+```
+git log --oneline -- docs/api-contracts/issue-$ARGUMENTS.md
+```
+If the file is missing from the log, the architect did not reach its commit step — check whether `npx nx build track-shared` failed before the commit. Do not proceed to Phase 4 without it.
 
 ## Phase 4 — Parallel Implementation
 
@@ -84,8 +102,10 @@ Frontend work needed:
 Acceptance criteria:
 [replace with the acceptance criteria from the issue]
 
-API contract and shared types (defined by the architect — import from 'track-shared', do not redefine):
-[paste the full architect output from Phase 3 here]
+API contract and shared types:
+Read the file docs/api-contracts/issue-[replace with issue number].md for the full
+contract defined by the architect. Import shared types from 'track-shared' — do not
+redefine them inline.
 
 When done, commit your work and return:
 1. Your worktree branch name
@@ -108,8 +128,10 @@ Backend work needed:
 Acceptance criteria:
 [replace with the acceptance criteria from the issue]
 
-API contract and shared types (defined by the architect — import from 'track-shared', do not redefine):
-[paste the full architect output from Phase 3 here]
+API contract and shared types:
+Read the file docs/api-contracts/issue-[replace with issue number].md for the full
+contract defined by the architect. Import shared types from 'track-shared' — do not
+redefine them inline.
 
 When done, commit your work and return:
 1. Your worktree branch name
@@ -123,36 +145,36 @@ Wait for both agents to return their summaries before proceeding.
 
 ## Phase 5 — Merge Worktrees
 
-Once both agents have returned:
+Every agent (frontend-dev, backend-dev) runs in an isolated worktree, so their branches always need to be merged back — even when only one agent was spawned.
 
-1. Note the branch names from each summary
-2. Ensure you are on the feature branch (not inside either worktree):
+1. Note the worktree branch name(s) from the agent summary/summaries
+2. Ensure you are on the feature branch (not inside any worktree):
 
    ```
    git checkout <feature-branch>
    ```
 
-3. Merge the frontend branch:
+3. If a **frontend** agent was spawned, merge its branch:
 
    ```
    git merge <frontend-worktree-branch> --no-ff -m "feat: frontend for #$ARGUMENTS"
    ```
 
-4. Merge the backend branch:
+4. If a **backend** agent was spawned, merge its branch:
 
    ```
    git merge <backend-worktree-branch> --no-ff -m "feat: backend for #$ARGUMENTS"
    ```
 
 5. If there are conflicts in shared files (e.g. `tsconfig.base.json`, `package.json`, `nx.json`), resolve them by combining both sets of changes — do not discard either agent's modifications
-6. Confirm the working tree is clean and both agents' changes are present before running checks:
+6. Confirm the working tree is clean and all agents' changes are present before running checks:
 
    ```
    git status
    git log --oneline -5
    ```
 
-   If the working tree is not clean or either agent's commits are missing, stop and investigate before proceeding.
+   If the working tree is not clean or any agent's commits are missing, stop and investigate before proceeding.
 
 7. Verify the merged state:
 
@@ -177,9 +199,13 @@ Once both agents have returned:
 
 ## Phase 6 — Parallel Test
 
-Spawn **both agents at the same time in a single message** (this triggers parallel execution). Each agent runs in an isolated worktree and must merge its work back to the feature branch when done.
+**Accessibility tests always run** for any issue that includes frontend changes.
 
-**E2E tester task** (subagent_type: tester, isolation: worktree):
+**E2E tests only run if explicitly requested** in the issue (e.g. the issue body mentions "e2e", "end-to-end", "playwright", or has a checklist item for automated tests). If E2E was not requested, skip the E2E tester agent entirely.
+
+Spawn the applicable agent(s) at the same time in a single message. Each agent runs in an isolated worktree — instruct them only to commit and return their branch name. The orchestrator owns all merges.
+
+**E2E tester task** — only if E2E was requested (subagent_type: tester, isolation: worktree):
 
 ```
 Test the feature that was just implemented and merged.
@@ -193,15 +219,14 @@ Frontend dev summary:
 Backend dev summary:
 [paste full backend-dev output from Phase 4]
 
-You are running in an isolated worktree. When your tests are written and committed:
-1. Note your worktree branch name
-2. Merge it back to the feature branch:
-   git checkout <feature-branch>
-   git merge <worktree-branch> --no-ff -m "test: e2e for #$ARGUMENTS"
-3. Return a full structured test report.
+When your tests are written and passing, commit them and return:
+1. Your worktree branch name
+2. A full structured test report.
+
+Do NOT merge your branch — the orchestrator will handle that.
 ```
 
-**Accessibility tester task** (subagent_type: ally-tester, isolation: worktree):
+**Accessibility tester task** — always run for frontend changes (subagent_type: ally-tester, isolation: worktree):
 
 ```
 Run accessibility tests for the feature that was just implemented and merged.
@@ -212,21 +237,27 @@ Original GitHub issue:
 Frontend dev summary:
 [paste full frontend-dev output from Phase 4]
 
-You are running in an isolated worktree. When your tests are written and committed:
-1. Note your worktree branch name
-2. Merge it back to the feature branch:
-   git checkout <feature-branch>
-   git merge <worktree-branch> --no-ff -m "test(a11y): accessibility tests for #$ARGUMENTS"
-3. Return a full structured accessibility report.
+When your tests are written and committed, return:
+1. Your worktree branch name
+2. A full structured accessibility report.
+
+Do NOT merge your branch — the orchestrator will handle that.
 ```
 
-Wait for both agents to return before proceeding.
+Wait for all spawned agents to return before proceeding.
 
-Once both agents have returned and merged their branches back, remove the test worktrees:
+Once all agents have returned, merge each worktree branch back to the feature branch:
 
 ```
-git worktree remove <tester-worktree-path> --force
-git worktree remove <ally-tester-worktree-path> --force
+git checkout <feature-branch>
+git merge <e2e-worktree-branch> --no-ff -m "test: e2e for #$ARGUMENTS"        # if E2E was spawned
+git merge <ally-worktree-branch> --no-ff -m "test(a11y): a11y for #$ARGUMENTS" # if ally-tester was spawned
+```
+
+Then remove the worktrees:
+
+```
+git worktree remove <worktree-path> --force   # repeat for each spawned agent
 git worktree prune
 ```
 
@@ -238,27 +269,32 @@ git push origin <feature-branch>
 
 ## Phase 7 — Merge
 
-Review the reports from both agents:
+Review the reports from all agents that were spawned in Phase 6.
 
-- If the **E2E report is clean** (no test failures):
-  1. Merge the PR using the GitHub MCP tool `mcp__github__merge_pull_request` with:
-     - `owner`: `kal-a-1`
-     - `repo`: `claude-code-ai-demo`
-     - `pull_number`: the PR number opened in Phase 5
-     - `merge_method`: `squash`
-  2. Close the original issue using `mcp__github__update_issue` with:
-     - `owner`: `kal-a-1`
-     - `repo`: `claude-code-ai-demo`
-     - `issue_number`: $ARGUMENTS
-     - `state`: `closed`
-  3. Report to the user: what was built, that E2E checks passed, and that the PR was merged and the issue closed.
-     - If the accessibility report found violations: note the GitHub issue(s) filed and confirm they do not block the merge.
-     - If the accessibility report found no violations: note that explicitly ("No accessibility violations found.").
+**If E2E was not requested** (no E2E tester was spawned): proceed directly to merge — the absence of E2E tests is not a blocker.
 
-- If the **E2E report has failures**:
-  1. Do not merge
-  2. Present to the user:
-     - What was built (combined frontend + backend summary)
-     - Which E2E tests failed and why
-     - Any accessibility violations and GitHub issues filed
-     - Recommended next steps to unblock the merge
+**If E2E was requested and the E2E report is clean** (no test failures): proceed to merge.
+
+**If E2E was requested and the E2E report has failures**:
+1. Do not merge
+2. Present to the user:
+   - What was built (combined frontend + backend summary)
+   - Which E2E tests failed and why
+   - Any accessibility violations and GitHub issues filed
+   - Recommended next steps to unblock the merge
+
+**To merge** (when unblocked):
+1. Merge the PR using the GitHub MCP tool `mcp__github__merge_pull_request` with:
+   - `owner`: `kal-a-1`
+   - `repo`: `claude-code-ai-demo`
+   - `pull_number`: the PR number opened in Phase 5
+   - `merge_method`: `squash`
+2. Close the original issue using `mcp__github__update_issue` with:
+   - `owner`: `kal-a-1`
+   - `repo`: `claude-code-ai-demo`
+   - `issue_number`: $ARGUMENTS
+   - `state`: `closed`
+3. Report to the user: what was built, whether E2E ran and passed, and that the PR was merged and the issue closed.
+   - If the accessibility report found violations: note the GitHub issue(s) filed and confirm they do not block the merge.
+   - If the accessibility report found no violations: note that explicitly ("No accessibility violations found.").
+   - If no frontend changes were made: note that accessibility tests were skipped.

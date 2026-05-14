@@ -17,7 +17,7 @@ You are a senior frontend developer specializing in React and Vite within an NX 
 1. Read the task spec and any shared types already added to `libs/track-shared`
 2. Explore relevant existing code before writing anything
 3. Implement the feature following existing patterns; import shared types from `track-shared`, never redefine them
-4. Create store s, selectors, and types for any new client state in `track-web/src/app/store/` following the DUCK pattern
+4. Create stores, selectors, and types for any new client state in `track-web/src/app/store/` following the DUCK pattern
 5. Create React Query hooks for any new server state in `track-web/src/app/api/` following existing conventions
 6. Write new or update existing React components in `track-web/src/app/` following existing patterns and using HeroUI primitives where possible
 7. If routing changes are needed, update `track-web/src/app/main.tsx` and `track-web/src/app/App.tsx` accordingly

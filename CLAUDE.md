@@ -225,6 +225,7 @@ docs: update API error handling in CLAUDE.md
 
 ## Do Nots
 
+- **Don't modify ESLint or Prettier config files** — never edit `.eslintrc.*`, `eslint.config.*`, `.prettierrc.*`, `prettier.config.*`, or any per-project ESLint/Prettier overrides; raise a question if a lint or format rule is blocking progress
 - **Don't put business logic in controllers** — controllers route requests, services own the logic
 - **Don't access Prisma directly** — always go through `PrismaService` in `apps/track-api/src/app/prisma.service.ts`
 - **Don't add shared types inline** — if a type is used by both apps, add it to `libs/track-shared`
