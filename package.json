@@ -5,7 +5,10 @@
   "scripts": {
     "dev": "nx run-many --target=serve --projects=track-web,track-api --parallel",
     "dev:web": "nx serve track-web",
-    "dev:api": "nx serve track-api"
+    "dev:api": "nx serve track-api",
+    "lint": "nx run-many --target=lint --all",
+    "lint:fix": "nx run-many --target=lint --all -- --fix",
+    "build": "nx run-many --target=build --all"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.11.3",
