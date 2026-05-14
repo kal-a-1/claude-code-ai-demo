@@ -57,7 +57,9 @@ Confirm the branch is active before spawning any agents.
 
 ## Phase 3 — Shared Types & API Contracts
 
-Spawn the **architect agent** (subagent_type: architect) with the following prompt. Replace every `[…]` placeholder with the actual values from Phase 1 before sending — do not forward placeholder text.
+Spawn the **🟡 architect agent** (subagent_type: architect) with the following prompt. Replace every `[…]` placeholder with the actual values from Phase 1 before sending — do not forward placeholder text.
+
+When announcing this agent to the user, prefix its status with **🟡 Architect**.
 
 ```
 Design the API contract and shared types for this feature.
@@ -88,7 +90,7 @@ Spawn **both agents at the same time in a single message** (this triggers parall
 
 **Before sending the prompts below, replace every `[…]` placeholder with the actual values you retrieved in Phase 1 and the architect output from Phase 3.** Do not forward placeholder text — interpolate the real issue title, body, your analysis, acceptance criteria, and the full API contract inline.
 
-**Frontend task** (subagent_type: frontend-dev):
+**🔵 Frontend task** (subagent_type: frontend-dev) — when announcing this agent prefix its status with **🔵 Frontend**:
 
 ```
 Implement the frontend portion of this feature.
@@ -114,7 +116,7 @@ When done, commit your work and return:
 4. Any open questions for the tester
 ```
 
-**Backend task** (subagent_type: backend-dev):
+**🟢 Backend task** (subagent_type: backend-dev) — when announcing this agent prefix its status with **🟢 Backend**:
 
 ```
 Implement the backend portion of this feature.
@@ -212,7 +214,7 @@ Every agent (frontend-dev, backend-dev) runs in an isolated worktree, so their b
 
 Spawn the applicable agent(s) at the same time in a single message. Each agent runs in an isolated worktree — instruct them only to commit and return their branch name. The orchestrator owns all merges.
 
-**E2E tester task** — only if E2E was requested (subagent_type: tester, isolation: worktree):
+**🟣 E2E tester task** — only if E2E was requested (subagent_type: tester, isolation: worktree) — when announcing this agent prefix its status with **🟣 E2E Tester**:
 
 ```
 Test the feature that was just implemented and merged.
@@ -233,7 +235,7 @@ When your tests are written and passing, commit them and return:
 Do NOT merge your branch — the orchestrator will handle that.
 ```
 
-**Accessibility tester task** — always run for frontend changes (subagent_type: ally-tester, isolation: worktree):
+**🔴 Accessibility tester task** — always run for frontend changes (subagent_type: ally-tester, isolation: worktree) — when announcing this agent prefix its status with **🔴 A11y Tester**:
 
 ```
 Run accessibility tests for the feature that was just implemented and merged.
