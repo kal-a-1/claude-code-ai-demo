@@ -296,7 +296,7 @@ When your tests are written and passing, commit them and return:
 Do NOT merge your branch — the orchestrator will handle that.
 ```
 
-**🔴 Accessibility tester task** — always run for frontend changes (subagent_type: ally-tester, isolation: worktree) — when announcing this agent prefix its status with **🔴 A11y Tester**:
+**🔴 Accessibility tester task** — always run for frontend changes (subagent_type: ally-tester) — when announcing this agent prefix its status with **🔴 A11y Tester**:
 
 ```
 Run accessibility tests for the feature that was just implemented and merged.
@@ -314,30 +314,25 @@ Write Playwright accessibility tests using @axe-core/playwright covering the pag
 
 Commit the tests whether they pass or fail. If violations are found, file a GitHub issue summarising them.
 
-When done, return:
-1. Your worktree branch name
-2. A full structured accessibility report.
-
-Do NOT merge your branch — the orchestrator will handle that.
+When done, return a full structured accessibility report.
 ```
 
 Wait for all spawned agents to return before proceeding.
 
-Once all agents have returned, merge each worktree branch back to the feature branch:
+The ally-tester commits directly to the feature branch — no merge needed. If the E2E tester was spawned, merge its worktree branch back:
 
 ```
 git checkout <feature-branch>
-git merge <e2e-worktree-branch> --no-ff -m "test: e2e for #$ARGUMENTS"        # if E2E was spawned
-git merge <ally-worktree-branch> --no-ff -m "test(a11y): a11y for #$ARGUMENTS" # if ally-tester was spawned
+git merge <e2e-worktree-branch> --no-ff -m "test: e2e for #$ARGUMENTS"   # only if E2E was spawned
 ```
 
-Then remove the worktrees and delete the local worktree branches:
+Then clean up the E2E worktree (if spawned):
 
 ```
-git worktree remove <worktree-path> --force   # repeat for each spawned agent
+git worktree list                                    # find the path matching the e2e branch
+git worktree remove <e2e-worktree-path> --force
 git worktree prune
-git branch -D <e2e-worktree-branch>           # if E2E was spawned
-git branch -D <ally-worktree-branch>          # if ally-tester was spawned
+git branch -D <e2e-worktree-branch>
 ```
 
 Then push the feature branch to remote so the test commits are included in the PR:
