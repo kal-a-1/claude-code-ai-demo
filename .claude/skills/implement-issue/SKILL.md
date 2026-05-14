@@ -198,15 +198,62 @@ Every agent (frontend-dev, backend-dev) runs in an isolated worktree, so their b
    - If the failure is non-trivial, ambiguous, or requires understanding intent (e.g. a broken test with unclear expected behaviour, a migration conflict), **stop and ask the user** — do not guess or force a fix
    - Never skip or suppress checks (`--skip-nx-cache` is fine; `--no-verify`, `eslint-disable`, `@ts-ignore` are not)
 
-9. Push the branch and open a pull request against `main` using the GitHub MCP tool `mcp__github__create_pull_request` with:
-   - `owner`: `kal-a-1`
-   - `repo`: `claude-code-ai-demo`
-   - `title`: `feat: <short description> (closes #$ARGUMENTS)`
-   - `body`: a summary of what was built (frontend + backend), what migrations were run, and any open questions from the agents
-   - `head`: the current feature branch name
-   - `base`: `main`
+## Phase 6 — Screenshots & Open PR
 
-## Phase 6 — Parallel Test
+Skip the screenshot steps (6a) if the issue has no frontend changes; go straight to 6b.
+
+### 6a — Take screenshots
+
+1. Start the dev servers in the background:
+
+   ```
+   npm run dev
+   ```
+
+2. Wait until the frontend (port 4200) is ready — use `mcp__playwright__browser_navigate` to poll `http://localhost:4200`, retrying up to 10 times with a few seconds between attempts.
+
+3. From the issue description and the frontend agent's summary, identify every route that was added or meaningfully changed. For each route, construct the full URL by prepending `http://localhost:4200` (e.g. `http://localhost:4200/tasks`, `http://localhost:4200/tasks/new`). Then:
+   - Navigate with `mcp__playwright__browser_navigate` using a 1280×800 viewport
+   - Capture with `mcp__playwright__browser_take_screenshot` and save the file as `docs/screenshots/issue-$ARGUMENTS/<route-slug>.png` (e.g. `tasks.png`, `tasks-new.png`)
+
+4. Create the directory if needed, then commit the screenshots:
+
+   ```
+   git add docs/screenshots/issue-$ARGUMENTS/
+   git commit -m "chore: add screenshots for #$ARGUMENTS"
+   ```
+
+5. Stop the dev servers.
+
+### 6b — Open PR
+
+Push the branch and open a pull request against `main` using the GitHub MCP tool `mcp__github__create_pull_request` with:
+- `owner`: `kal-a-1`
+- `repo`: `claude-code-ai-demo`
+- `title`: `feat: <short description> (closes #$ARGUMENTS)`
+- `head`: the current feature branch name
+- `base`: `main`
+- `body`: use the template below, substituting real values
+
+```markdown
+## Summary
+[bullet points covering what was built — frontend + backend]
+
+## Migrations
+[list any Prisma migrations that were run, or "None"]
+
+## Screenshots
+[For each screenshot saved in 6a, embed it with the GitHub blob URL:
+![<route-slug>](https://github.com/kal-a-1/claude-code-ai-demo/blob/<feature-branch>/docs/screenshots/issue-$ARGUMENTS/<route-slug>.png?raw=true)
+If no frontend changes, write "N/A — backend-only change".]
+
+## Open questions
+[list any open questions from the agents, or "None"]
+
+Closes #$ARGUMENTS
+```
+
+## Phase 7 — Parallel Test
 
 **Accessibility tests always run** for any issue that includes frontend changes.
 
@@ -246,6 +293,8 @@ Original GitHub issue:
 Frontend dev summary:
 [paste full frontend-dev output from Phase 4]
 
+The frontend is running at http://localhost:4200 — use this as the base URL for all pages you scan.
+
 When your tests are written and committed, return:
 1. Your worktree branch name
 2. A full structured accessibility report.
@@ -278,13 +327,13 @@ Then push the feature branch to remote so the test commits are included in the P
 git push origin <feature-branch>
 ```
 
-## Phase 7 — Report
+## Phase 8 — Report
 
 Present a summary to the user covering:
 
 - **What was built** — combined frontend + backend summary from Phase 4
 - **Tests** — whether E2E ran and the outcome (pass / fail / skipped); if failures, list them and suggest next steps
 - **Accessibility** — violations found and any GitHub issues filed, or "No accessibility violations found.", or "Accessibility tests skipped" if no frontend changes
-- **PR** — link to the pull request opened in Phase 5
+- **PR** — link to the pull request opened in Phase 6
 
 Do not merge the PR. Merging is the user's decision.
